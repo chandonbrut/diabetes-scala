@@ -1,0 +1,80 @@
+<html>
+<canvas id="myChart" width="600" height="600">
+</canvas>
+<head>
+    <script src="jquery-3.2.1.min.js"></script>
+    <script src="Chart.bundle.min.js"></script>
+</head>
+<body>
+<script>
+
+window.chartColors = {
+	red: 'rgb(255, 99, 132)',
+	orange: 'rgb(255, 159, 64)',
+	yellow: 'rgb(255, 205, 86)',
+	green: 'rgb(75, 192, 192)',
+	blue: 'rgb(54, 162, 235)',
+	purple: 'rgb(153, 102, 255)',
+	grey: 'rgb(201, 203, 207)'
+};
+
+    var chartData = {
+        labels: [],
+        datasets: [
+            {
+		label: "Colesterol Total",
+                backgroundColor: window.chartColors.red,
+                borderColor: window.chartColors.red,
+                fill: false,
+                data: []
+            },
+            {
+		label: "Glicose",
+                backgroundColor: window.chartColors.green,
+                borderColor: window.chartColors.green,
+                fill: false,
+                data: []
+            }
+
+        ]
+    };
+
+
+var xAxis = [];
+
+$.ajax({
+        url: "./exame.json",
+        dataType: 'json'
+}).done(function(data) {
+
+	data.sort(function(a, b) {
+		return a.data - b.data;
+	});
+
+	data.forEach(function(exame) {
+		xAxis.push(exame.data);
+		if (exame.tipo === 'Glicose') chartData.datasets[1].data.push(exame.valor);
+		if (exame.tipo === 'Colesterol Total') chartData.datasets[0].data.push(exame.valor);
+	});
+
+	chartData.labels = Array.from(new Set(xAxis));
+
+	var ctx = document.getElementById("myChart").getContext('2d');
+	var myChart = new Chart(ctx, {
+	    type: 'line',
+	    data: chartData,
+	    options: {
+		scales: {
+		    yAxes: [{
+			ticks: {
+			    beginAtZero:true
+			}
+		    }]
+		}
+	    }
+	});
+
+});
+</script>
+</body>
+</html>
