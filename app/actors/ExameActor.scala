@@ -6,7 +6,7 @@ import akka.actor.Actor
 import models.{Exame, QueryAll}
 import org.mongodb.scala.bson.{BsonDouble, BsonInt32, BsonInt64, BsonString}
 import org.mongodb.scala.bson.collection.immutable.Document
-import org.mongodb.scala.connection.NettyStreamFactoryFactory
+import org.mongodb.scala.connection.{NettyStreamFactoryFactory, SslSettings}
 import org.mongodb.scala.{MongoClient, MongoClientSettings, MongoDatabase, documentToUntypedDocument}
 import play.api.libs.json.{JsObject, Json}
 
@@ -17,7 +17,8 @@ class ExameActor(mongoUrl:String) extends Actor {
   val settings = MongoClient(mongoUrl).settings
 
 
-  val sslSettings = MongoClientSettings.builder(settings).streamFactoryFactory(NettyStreamFactoryFactory()).build()
+  val sslSettings = MongoClientSettings.builder(settings).sslSettings(SslSettings.builder()
+    .enabled(true).build()).streamFactoryFactory(NettyStreamFactoryFactory()).build()
 
 
   override def receive = {
