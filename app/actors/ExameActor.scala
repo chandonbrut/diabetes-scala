@@ -14,19 +14,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class ExameActor(mongoUrl:String) extends Actor {
 
-  val settings = MongoClient(mongoUrl).settings
-
-
-  val sslSettings = MongoClientSettings.builder(settings).sslSettings(SslSettings.builder()
-    .enabled(true).build()).streamFactoryFactory(NettyStreamFactoryFactory()).build()
-
 
   override def receive = {
     case exame:Exame => {
 
 
 
-      val mongoClient = MongoClient(sslSettings)
+      val mongoClient = MongoClient(mongoUrl)
       val database: MongoDatabase = mongoClient.getDatabase("Exames")
       val examesCollection = database.getCollection("exames")
 
@@ -39,7 +33,7 @@ class ExameActor(mongoUrl:String) extends Actor {
     }
     case exames:Array[Exame] => {
 
-      val mongoClient = MongoClient(sslSettings)
+      val mongoClient = MongoClient(mongoUrl)
       val database: MongoDatabase = mongoClient.getDatabase("Exames")
       val examesCollection = database.getCollection("exames")
 
@@ -52,7 +46,7 @@ class ExameActor(mongoUrl:String) extends Actor {
 
     case query:QueryAll => {
 
-      val mongoClient = MongoClient(sslSettings)
+      val mongoClient = MongoClient(mongoUrl)
       val database: MongoDatabase = mongoClient.getDatabase("Exames")
       val examesCollection = database.getCollection("exames")
 
