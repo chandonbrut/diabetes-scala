@@ -6,19 +6,26 @@ import akka.actor.Actor
 import models.{Exame, QueryAll}
 import org.mongodb.scala.bson.{BsonDouble, BsonInt32, BsonInt64, BsonString}
 import org.mongodb.scala.bson.collection.immutable.Document
-import org.mongodb.scala.{MongoClient, MongoDatabase, documentToUntypedDocument}
+import org.mongodb.scala.connection.NettyStreamFactoryFactory
+import org.mongodb.scala.{MongoClient, MongoClientSettings, MongoDatabase, documentToUntypedDocument}
 import play.api.libs.json.{JsObject, Json}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class ExameActor(mongoUrl:String) extends Actor {
 
+  val settings = MongoClient(mongoUrl).settings
+
+
+  val sslSettings = MongoClientSettings.builder(settings).streamFactoryFactory(NettyStreamFactoryFactory()).build()
 
 
   override def receive = {
     case exame:Exame => {
 
-      val mongoClient = MongoClient(mongoUrl)
+
+
+      val mongoClient = MongoClient(sslSettings)
       val database: MongoDatabase = mongoClient.getDatabase("Exames")
       val examesCollection = database.getCollection("exames")
 
@@ -31,7 +38,7 @@ class ExameActor(mongoUrl:String) extends Actor {
     }
     case exames:Array[Exame] => {
 
-      val mongoClient = MongoClient(mongoUrl)
+      val mongoClient = MongoClient(sslSettings)
       val database: MongoDatabase = mongoClient.getDatabase("Exames")
       val examesCollection = database.getCollection("exames")
 
@@ -44,7 +51,7 @@ class ExameActor(mongoUrl:String) extends Actor {
 
     case query:QueryAll => {
 
-      val mongoClient = MongoClient(mongoUrl)
+      val mongoClient = MongoClient(sslSettings)
       val database: MongoDatabase = mongoClient.getDatabase("Exames")
       val examesCollection = database.getCollection("exames")
 
