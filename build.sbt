@@ -4,7 +4,7 @@ scalaVersion := "2.12.3"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-herokuAppName in Compile := "diabetes-scala"
+herokuAppName in Compile := "whyamidying"
 
 
 libraryDependencies ++= Seq(

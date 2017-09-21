@@ -1,9 +1,32 @@
 <html>
-<canvas id="myChart" width="600" height="600">
-</canvas>
+
+<div style="width:80%; height:100%; position:absolute;">
+    <div style="width:80%; height:50%; position:relative;">
+        <div style="width:50%; height:50%; position: relative; float: left;">
+            <canvas id="glic">
+            </canvas>
+        </div>
+        <div style="width:50%; height:50%; position: relative; float: right;">
+            <canvas id="hba1c">
+            </canvas>
+        </div>
+    </div>
+    <div style="width:80%; height:50%; position:relative;">
+        <div style="width:50%; height:50%; position: relative; float: left;">
+            <canvas id="colesterol">
+            </canvas>
+        </div>
+        <div style="width:50%; height:50%; position: relative; float: right;">
+            <canvas id="insulina">
+            </canvas>
+        </div>
+    </div>
+</div>
+
+
 <head>
-    <script src="jquery-3.2.1.min.js"></script>
-    <script src="Chart.bundle.min.js"></script>
+    <script src='@routes.Assets.versioned("javascripts/jquery-3.2.1.min.js")'></script>
+    <script src='@routes.Assets.versioned("javascripts/Chart.bundle.min.js")'></script>
 </head>
 <body>
 <script>
@@ -18,7 +41,7 @@ window.chartColors = {
 	grey: 'rgb(201, 203, 207)'
 };
 
-    var chartData = {
+    var colesterolData = {
         labels: [],
         datasets: [
             {
@@ -29,9 +52,30 @@ window.chartColors = {
                 data: []
             },
             {
-		label: "Glicose",
+		label: "Colesterol HDL",
+                backgroundColor: window.chartColors.orange,
+                borderColor: window.chartColors.orange,
+                fill: false,
+                data: []
+            },
+            {
+		label: "Colesterol LDL",
+                backgroundColor: window.chartColors.yellow,
+                borderColor: window.chartColors.yellow,
+                fill: false,
+                data: []
+            },
+            {
+		label: "Triglicerides",
                 backgroundColor: window.chartColors.green,
                 borderColor: window.chartColors.green,
+                fill: false,
+                data: []
+            },
+            {
+		label: "Colesterol VLDL",
+                backgroundColor: window.chartColors.blue,
+                borderColor: window.chartColors.blue,
                 fill: false,
                 data: []
             }
@@ -39,12 +83,51 @@ window.chartColors = {
         ]
     };
 
+    var glicData = {
+        labels: [],
+        datasets: [
+            {
+		label: "Glicose",
+                backgroundColor: window.chartColors.green,
+                borderColor: window.chartColors.green,
+                fill: false,
+                data: []
+            }
+        ]
+    };
 
-var xAxis = [];
+    var hba1cData = {
+        labels: [],
+        datasets: [
+            {
+		label: "HbA1C",
+                backgroundColor: window.chartColors.green,
+                borderColor: window.chartColors.green,
+                fill: false,
+                data: []
+            }
+        ]
+    };
+
+    var insulinaData = {
+        labels: [],
+        datasets: [
+            {
+		label: "Insulina",
+                backgroundColor: window.chartColors.green,
+                borderColor: window.chartColors.green,
+                fill: false,
+                data: []
+            }
+        ]
+    };
+
 
 $.ajax({
-        url: "./exame.json",
-        dataType: 'json'
+        url: "@routes.ExameService.all",
+        dataType: 'json',
+        type: 'GET',
+        contentType: 'application/json; charset=UTF-8'
 }).done(function(data) {
 
 	data.sort(function(a, b) {
@@ -52,17 +135,65 @@ $.ajax({
 	});
 
 	data.forEach(function(exame) {
-		xAxis.push(exame.data);
-		if (exame.tipo === 'Glicose') chartData.datasets[1].data.push(exame.valor);
-		if (exame.tipo === 'Colesterol Total') chartData.datasets[0].data.push(exame.valor);
+
+	    var dt = new Date(exame.data);
+	    var dtString = dt.toLocaleDateString("pt-BR");
+
+		if (exame.tipo === 'Glicose') {
+			glicData.datasets[0].data.push(exame.valor);
+			glicData.labels.push(dtString);
+		}
+
+		if (exame.tipo === 'Colesterol Total') {
+			colesterolData.datasets[0].data.push(exame.valor);
+			colesterolData.labels.push(dtString);
+		}
+
+		if (exame.tipo === 'Colesterol HDL') {
+			colesterolData.datasets[1].data.push(exame.valor);
+			colesterolData.labels.push(dtString);
+		}
+
+		if (exame.tipo === 'Colesterol LDL') {
+			colesterolData.datasets[2].data.push(exame.valor);
+			colesterolData.labels.push(dtString);
+		}
+
+		if (exame.tipo === 'Triglicerides') {
+			colesterolData.datasets[3].data.push(exame.valor);
+			colesterolData.labels.push(dtString);
+		}
+
+		if (exame.tipo === 'Colesterol VLDL') {
+			colesterolData.datasets[4].data.push(exame.valor);
+			colesterolData.labels.push(dtString);
+		}
+
+		if (exame.tipo === 'Hemoglobina Glicada (A1C)') {
+			hba1cData.datasets[0].data.push(exame.valor);
+			hba1cData.labels.push(dtString);
+		}
+
+		if (exame.tipo === 'Insulina') {
+			insulinaData.datasets[0].data.push(exame.valor);
+			insulinaData.labels.push(dtString);
+		}
 	});
 
-	chartData.labels = Array.from(new Set(xAxis));
+	glicData.labels = Array.from(new Set(glicData.labels));
+	colesterolData.labels = Array.from(new Set(colesterolData.labels));
+	hba1cData.labels = Array.from(new Set(hba1cData.labels));
+	insulinaData.labels = Array.from(new Set(insulinaData.labels));
 
-	var ctx = document.getElementById("myChart").getContext('2d');
-	var myChart = new Chart(ctx, {
+	var ctxCol = document.getElementById("colesterol").getContext('2d');
+	var ctxGlic = document.getElementById("glic").getContext('2d');
+	var ctxHb = document.getElementById("hba1c").getContext('2d');
+	var ctxIn = document.getElementById("insulina").getContext('2d');
+
+
+	var myChart = new Chart(ctxCol, {
 	    type: 'line',
-	    data: chartData,
+	    data: colesterolData,
 	    options: {
 		scales: {
 		    yAxes: [{
@@ -73,6 +204,52 @@ $.ajax({
 		}
 	    }
 	});
+
+
+	myChart = new Chart(ctxGlic, {
+	    type: 'line',
+	    data: glicData,
+	    options: {
+		scales: {
+		    yAxes: [{
+			ticks: {
+			    beginAtZero:true
+			}
+		    }]
+		}
+	    }
+	});
+
+
+	myChart = new Chart(ctxHb, {
+	    type: 'line',
+	    data: hba1cData,
+	    options: {
+		scales: {
+		    yAxes: [{
+			ticks: {
+			    beginAtZero:true
+			}
+		    }]
+		}
+	    }
+	});
+
+
+	myChart = new Chart(ctxIn, {
+	    type: 'line',
+	    data: insulinaData,
+	    options: {
+		scales: {
+		    yAxes: [{
+			ticks: {
+			    beginAtZero:true
+			}
+		    }]
+		}
+	    }
+	});
+
 
 });
 </script>
