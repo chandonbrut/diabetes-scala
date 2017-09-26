@@ -2,6 +2,6 @@ GET  /                           controllers.ExameService.show
 PUT  /exame                       controllers.ExameService.insertExame
 PUT  /exames                      controllers.ExameService.bulkInsertExame
 GET  /exames                      controllers.ExameService.all
-
+GET  /exames/create               controllers.ExameService.create
 # Assets
 GET     /assets/*file           controllers.Assets.versioned(path="/public", file: Asset)

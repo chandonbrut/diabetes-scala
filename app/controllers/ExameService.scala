@@ -6,25 +6,33 @@ import akka.stream.Materializer
 import com.google.inject.Inject
 import play.api.mvc.InjectedController
 import akka.util.Timeout
-import models.{Exame, QueryAll}
+import models.{Exame, ExameRepository, QueryAll}
+import models.Exame._
 import play.api.Configuration
 import play.api.libs.json.{JsError, Json}
-import akka.pattern.ask;
+import akka.pattern.ask
 
 import scala.concurrent.ExecutionContext.Implicits.global
-
+import scala.concurrent.Future
 import scala.concurrent.duration._
 
-class ExameService @Inject() (implicit system:ActorSystem, materializer:Materializer,configuration:Configuration) extends InjectedController {
+class ExameService @Inject() (implicit system:ActorSystem, materializer:Materializer,configuration:Configuration, repository:ExameRepository) extends InjectedController {
 
   implicit val timeout = Timeout(30 seconds)
 
-  val mongoUrl:String = configuration.getString("diabetes.mongourl").get
-
-
   def getActor():ActorRef = {
-    system.actorOf(Props(new ExameActor(mongoUrl)))
+    system.actorOf(Props(new ExameActor(repository)))
 
+  }
+
+  def create = Action.async {
+    request =>
+
+      val fut = Future {
+        repository.createTable
+      }
+
+      fut.map(s => Ok(Json.obj("status" -> "ok")))
   }
 
   def all = Action.async {
