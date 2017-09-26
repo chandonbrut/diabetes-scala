@@ -28,6 +28,8 @@ class ExameRepository @Inject() (db:Database) {
           );
           """
         )
+
+        statement.execute()
     }
   }
 
